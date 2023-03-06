@@ -8,7 +8,6 @@ namespace CV19.ViewModels.Base
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-
         //~ViewModel() { Dispose(false); }
 
         public void Dispose()
@@ -34,7 +33,6 @@ namespace CV19.ViewModels.Base
             field = value;
             OnPropertyChanged(propertyName);
             return true;
-
         }
     }
 }
