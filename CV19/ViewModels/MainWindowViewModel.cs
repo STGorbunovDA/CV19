@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CV19.ViewModels
 {
-    internal class MainWindowModel : ViewModel
+    internal class MainWindowViewModel : ViewModel
     {
         #region Заголовок окна
 
@@ -22,6 +22,19 @@ namespace CV19.ViewModels
             //    //OnPropertyChanged();
             //    Set(ref _Title, value);
             //}
+        }
+
+        #endregion
+
+        #region Status : string - Статус программы
+
+        /// <summary> Статус программы </summary>
+        private string _Status = "Готов!";
+        /// <summary> Статус программы </summary>
+        public string Status 
+        { 
+            get => _Status; 
+            set => Set(ref _Status, value); 
         }
 
         #endregion
