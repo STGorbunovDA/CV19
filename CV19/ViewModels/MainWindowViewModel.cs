@@ -11,10 +11,26 @@ namespace CV19.ViewModels
 {
     internal class MainWindowViewModel : ViewModel
     {
+        #region Номер выбранной вкладки
+
+        /// <summary>Номер выбранной вкладки</summary>
+        private int _SelectedPageIndex;
+
+        /// <summary>Номер выбранной вкладки</summary>
+        public int SelectedPageIndex
+        {
+            get => _SelectedPageIndex;
+            set => Set(ref _SelectedPageIndex, value);
+        }
+
+        #endregion
+
         #region Тестовый набор для визуализации графиков
 
+        /// <summary>Тестовый набор для визуализации графиков</summary>
         private IEnumerable<DataPoint> _TestDataPoints;
 
+        /// <summary>Тестовый набор для визуализации графиков</summary>
         public IEnumerable<DataPoint> TestDataPoints
         {
             get => _TestDataPoints;
@@ -67,6 +83,20 @@ namespace CV19.ViewModels
         }
         #endregion
 
+        #region 
+
+        public ICommand ChangeTabIndexCommand { get; }
+
+        private bool CanChangeTabIndexCommandExecute(object p) => _SelectedPageIndex >= 0;
+
+        private void OnChangeTabIndexCommandExecute(object p)
+        {
+            if (p is null) return;
+            SelectedPageIndex += Convert.ToInt32(p);
+        }
+
+        #endregion
+
         #endregion
 
         public MainWindowViewModel()
@@ -74,6 +104,8 @@ namespace CV19.ViewModels
             #region Команды
 
             CloseApplicationCommand = new LamdaCommand(OnCloseApplicationCommandExecuted, CanCloseApplicationCommandExecute);
+
+            ChangeTabIndexCommand = new LamdaCommand(OnChangeTabIndexCommandExecute, CanChangeTabIndexCommandExecute);
 
             #endregion
 
@@ -83,7 +115,7 @@ namespace CV19.ViewModels
                 const double to_rad = Math.PI / 180;
                 var y = Math.Sin(x * to_rad);
 
-                data_points.Add(new DataPoint { Xvalue = x, Yvalue = y});
+                data_points.Add(new DataPoint { Xvalue = x, Yvalue = y });
             }
             TestDataPoints = data_points;
         }
