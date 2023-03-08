@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -13,13 +12,14 @@ namespace CV19Console
     {
         private const string data_url = @"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv";
 
+        /// <summary>Формирует поток байт данных </summary>
         private static async Task<Stream> GetDataStream()
         {
             var client = new HttpClient();
             var response = await client.GetAsync(data_url, HttpCompletionOption.ResponseHeadersRead);
             return await response.Content.ReadAsStreamAsync();
         }
-
+        /// <summary> Разбивает поток на последовательность строк</summary>
         private static IEnumerable<string> GetDataLines()
         {
             using var data_stream = GetDataStream().Result;
@@ -32,18 +32,27 @@ namespace CV19Console
                 yield return line.Replace("Korea,", "Korea-");
             }
         }
-
+        /// <summary>Получает только даты</summary>
         private static DateTime[] GetDates() => GetDataLines()
-            .First().Split(',').Skip(4).Select(s => DateTime.Parse(s, CultureInfo.InvariantCulture)).ToArray();
-
-        private static IEnumerable<(string Contry, string Province, int[] Counts)> GetData()
+            .First()
+            .Split(',')
+            .Skip(4)
+            .Select(s => DateTime.Parse(s, CultureInfo.InvariantCulture))
+            .ToArray();
+        /// <summary>Получает данные по количеству заражаненных по стране и кол-ву заражённых</summary>
+        private static IEnumerable<(string Country, string Province, int[] Counts)> GetData()
         {
             var lines = GetDataLines().Skip(1).Select(line => line.Split(','));
             foreach (var row in lines)
             {
+                var i = 0;
+                if (!int.TryParse(row[4], out int res))
+                    i = 1;
+
                 var province = row[0].Trim();
                 var country_name = row[1].Trim(' ', '"');
-                var counts = row.Skip(5).Select(int.Parse).ToArray();
+                //var counts = row.Skip(4).Select(int.Parse).ToArray();
+                var counts = row.Skip(4 + i).Select(int.Parse).ToArray();
                 yield return (country_name, province, counts);
             }
         }
@@ -67,8 +76,8 @@ namespace CV19Console
             //var dates = GetDates();
             //Console.WriteLine(string.Join("\r\n", dates));
 
-             var russia_data = GetData().First(v => v.Contry.Equals("Russia", StringComparison.OrdinalIgnoreCase));
-            Console.WriteLine(string.Join("\r\n", GetDates().Zip(russia_data.Counts, (date, count) => $"{date} - {count}")));
+             var russia_data = GetData().First(v => v.Country.Equals("Russia", StringComparison.OrdinalIgnoreCase));
+            Console.WriteLine(string.Join("\r\n", GetDates().Zip(russia_data.Counts, (date, count) => $"{date:dd:MM:yyyy} - {count}")));
 
             Console.ReadLine();
         }
